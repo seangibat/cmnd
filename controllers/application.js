@@ -1,32 +1,32 @@
 var Application = require('../models/application');
 
 exports.getRedirect = function(req,res){
-  Application.findOne({ command: req.params.command }, function(err, app){
+  Application.findOne({ command: req.params.command_word }, function(err, app){
     if (err) return res.send(err);
     if (!app) return res.json("Application not found");
-    var handler = require('/applications/' + req.params.command + '/app.js');
+    var handler = require('../applications/' + req.params.command_word + '/app.js');
     var data = {
       params: req.params,
       user: {
-        _id: user._id
+        _id: req.user._id
       }
     };
-    handler.get(data,res);
+    handler.getRedirect(data,res);
   });
 };
 
 exports.postRedirect = function(req,res){
-  Application.findOne({ command: req.params.command }, function(err, app){
+  Application.findOne({ command: req.params.command_word }, function(err, app){
     if (err) return res.send(err);
     if (!app) return res.json("Application not found");
-    var handler = require('/applications/' + req.params.command + '/app.js');
+    var handler = require('../applications/' + req.params.command_word + '/app.js');
     var data = {
       body: req.body,
       user: {
-        _id: user._id
+        _id: req.user._id
       }
     };
-    handler.post(data,res);
+    handler.postRedirect(data,res);
   });
 };
 
@@ -38,7 +38,7 @@ exports.getApplications = function(req,res){
 };
 
 exports.getApplication = function(req,res){
-  Application.findById({ _id: req.params.application_id }, function(err, app) {
+  Application.findOne({ command: req.params.command_word }, function(err, app) {
     if (err) res.send(err);
     res.json(app);
   });

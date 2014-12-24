@@ -61,7 +61,7 @@ router.route('/oauth2/token')
   .post(authController.isClientAuthenticated, oauth2Controller.token);
 
 // Routes that applications get for use in setting up. Directories based on the command.
-router.route('/applications/redirect/')
+router.route('/applications/:command_word/redirect/')
   .get(authController.isAuthenticated, applicationController.getRedirect)
   .post(authController.isAuthenticated, applicationController.postRedirect);
 
@@ -69,7 +69,7 @@ router.route('/applications/')
   .get(authController.isAuthenticated, applicationController.getApplications)
   .post(authController.isAuthenticated, applicationController.postApplications);
 
-router.route('/applications/:application_id')
+router.route('/applications/:command_word')
   .get(authController.isAuthenticated, applicationController.getApplication);
 
 // Register all our routes with /api

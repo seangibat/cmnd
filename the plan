@@ -14,11 +14,11 @@ command will be passed the calling users data store for that plugin and the mess
 
 will expect to return HTML.
 
-#get(object containing .params and .userId, res)
+#getRedirect (object containing .params and .userId, res)
 
 handler for get requests to its directory.
 
-#post(object containing .body and .userId, res)
+#postRedirect (object containing .body and .userId, res)
 
 handler for post requests to its directory.
 
