@@ -1,0 +1,38 @@
+each application is stored in the applications folder under its own folder
+
+each has at least
+
+-app.jsapp
+
+app.js exports these four functions:
+
+#command
+
+command will be passed the calling users data store for that plugin and the message, along with node command parser
+
+#configPage
+
+will expect to return HTML.
+
+#get(object containing .params and .userId, res)
+
+handler for get requests to its directory.
+
+#post(object containing .body and .userId, res)
+
+handler for post requests to its directory.
+
+
+if data store is needed, mongoose is available. a model javascript file should be included in the application directory. 
+
+
+
+
+---
+potentially could develop a standard set of tests????
+
+RIGHT NOW
+----
+post slack to applications
+add slack to sean user
+make slack module console log a command
