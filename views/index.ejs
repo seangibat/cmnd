@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>cmnd.center - command line in the cloud</title>
+  <link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.5.0/css/foundation.min.css">
+  <style>
+    body {
+      background-color: #040404;
+      font-family: "Inconsolata";
+    }
+
+    h1 {
+      color: #EEE;
+      text-align: center;
+      font-size: 140px;
+      font-weight:bold;
+      /*font-family: arial;*/
+      letter-spacing: -10px;
+      text-decoration: blink;
+    }
+
+    h3 {
+      text-align: center;
+      color: white;
+      font-family: Inconsolata;
+    }
+    @-webkit-keyframes blinker { from {opacity:1.0;} to {opacity:0.0;} }
+          @keyframes blinker { from {opacity:1.0;} to {opacity:0.0;} }
+
+  .blink {
+     text-decoration:blink;
+
+    -webkit-animation-name:blinker;
+            animation-name:blinker;  
+    -webkit-animation-iteration-count:infinite;  
+            animation-iteration-count:infinite;  
+    -webkit-animation-timing-function:cubic-bezier(1.0,0,0,1.0);
+            animation-timing-function:cubic-bezier(1.0,0,0,1.0);
+    -webkit-animation-duration:1s; 
+            animation-duration:1s; 
+    font-weight: normal;
+    letter-spacing: 0;
+    position: relative;
+    left: 6px;
+    /*top: -17px;*/
+  }
+
+  .button {
+    background-color: #040404;
+    color: white;
+    font-family: Inconsolata;
+    border: 1px solid white !important;
+  }
+  .upper {
+    position: fixed;
+    right: 10px;
+    top: 10px;
+  }
+
+  </style>
+</head>
+<body>
+  <h1>cmnd<span class="blink">_</span></h1>
+  <div class="row">
+    <div class="small-4 large-centered columns">
+      
+      <p class="panel text-justify">cmnd.center is a command line in the cloud. you can add or develop plugins that are accessible from any cmnd.client. typically, this would be your terminal, but could be anything that sends text. in other words, it's an api for apis. the framework is simple; the possibilities are not.</p>
+      <h3>sign up</h3>
+
+      <form action="/api/users" method="POST">
+        <input type="text" name="username" placeholder="username">
+        <input type="password" name="password" placeholder="password">
+        <input type="text" name="email" placeholder="email">
+        <input type="submit" class="button expand radius" value="ok">
+      </form>
+    </div>
+  </div>
+  <p class="upper"><a href="/dashboard">to the dashboard ></a></p>
+</body>
+</html>

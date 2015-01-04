@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>cmnd.center - command line in the cloud</title>
+  <link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.5.0/css/foundation.min.css">
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.min.js"></script>
+  <Script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.5.0/js/foundation.min.js"></script>
+  <style>
+    body {
+      background-color: #040404;
+      font-family: "Inconsolata";
+    }
+    .acard {
+      border: 1px solid white;
+      background-color: white;
+      margin: 15px;
+      float: left;
+      width: 250px;
+      padding: 15px;
+    }
+    .commands-table {
+      width: 100%;
+    }
+    .application-cell {
+      width: 100px;
+    }
+    h1 {
+      color: white;
+      font-family: "Inconsolata";
+    }
+    .tab {
+      display: none;
+    }
+    #commandsContainer {
+      display: block;
+    }
+    .topTab {
+      color: white;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .topTab:hover {
+      text-decoration: none;
+    }
+    .nav {
+      color: white;
+    }
+  </style>
+
+  <script id="allAppsTemplate" type="text/x-handlebars-template">
+    {{#each this}}
+      <div class="acard">
+        <h3>{{ title }}</h3>
+        <p><strong>command word:</strong>{{ command_word }}</p>
+        <p><strong>description:</strong>{{ description }}</p>
+        <form action="/api/user/applications" method="POST">
+          <input type="hidden" name="command_word" value="{{command_word}}">
+          <input type="submit" value="Add App">
+        </form>
+      </div>
+    {{/each}}
+    {{#unless this }}
+    <div class="row">
+    <div class="large-12 text-center">
+        <div class="panel">
+          you have added all applications.
+        </div>
+        </div></div>
+    {{/unless}}
+  </script>
+
+  <script id="yourAppsTemplate" type="text/x-handlebars-template">
+    {{#each this}}
+      <div class="acard">
+        <h3>{{ title }}</h3>
+        <p><strong>command word:</strong>{{ command_word }}</p>
+        <p><strong>description:</strong>{{ description }}</p>
+        <p><strong>config:</strong><br>
+          {{{ configHtml }}}
+        </p>
+      </div>
+    {{/each}}
+
+  </script>
+
+</head>
+<body>
+<h1 class="text-center">dashboard</h1>
+
+<div class="row">
+  <div class="large-12 columns text-center nav">
+    <span id="commandsNav" class="topTab">your commands</span> &#183; 
+    <span id="yourAppsNav" class="topTab">your applications</span> &#183; 
+    <span id="allAppsNav" class="topTab">all applications</span> &#183; 
+    <span id="submitAppsNav" class="topTab">submit applications</span>
+  </div>
+</div>
+
+<div class="row">
+  <div class="large-12 small-12 columns">
+ 
+    <div class="tab" id="commandsContainer">
+      <table class="commands-table">
+        <tr><th>apps</th><th>commands</th><th>timestamps</th></tr>
+        <% commands.forEach(function(command){ %>
+          <tr>
+            <td class="application-cell"><%= command.application %></td>
+            <td class="message-cell"><%= command.message %></td>
+            <td class="timestamp-cell"><%= command.timestamp %></td>
+          </tr>
+        <% }); %>
+      </table>
+    </div>
+
+    <div class="tab clear" id="yourApps">
+      
+    </div>
+
+    <div class="tab" id="allApps">
+    </div>
+
+    <div class="tab" id="pane4">
+    </div>
+
+  </div>
+</div>
+
+<script>
+  var Display = (function(){
+    var allAppsTemplate, yourAppsTemplate, $yourApps, $allApps, $commandsContainer, $tabs;
+
+    var allAppsHandlerFn = function(){
+      $tabs.hide();
+      $allApps.show();
+      $.get('http://localhost:3001/api/user/applicationsnotadded', function(data){
+        $allApps.html(allAppsTemplate(data));
+      });
+    };
+
+    var yourAppsHandlerFn = function(){
+      $tabs.hide();
+      $yourApps.show();
+      $.get('http://localhost:3001/api/user/applicationsconfig', function(data){
+        $yourApps.html(yourAppsTemplate(data));
+      });
+    };
+
+    var commandsHandlerFn = function(){
+      $tabs.hide();
+      $commandsContainer.show();
+    };
+
+    var initFn = function(){
+      allAppsTemplate = Handlebars.compile($("#allAppsTemplate").html());
+      yourAppsTemplate = Handlebars.compile($("#yourAppsTemplate").html());
+      $yourApps = $('#yourApps');
+      $allApps = $('#allApps');
+      $commandsContainer = $('#commandsContainer');
+      $tabs = $('.tab');
+      $(document).on('click','#yourAppsNav', Display.yourAppsHandler);
+      $(document).on('click','#allAppsNav', Display.allAppsHandler);
+      $(document).on('click','#commandsNav', Display.commandsHandler);
+    }
+
+    return {
+      init            : initFn,
+      yourAppsHandler : yourAppsHandlerFn,
+      allAppsHandler  : allAppsHandlerFn,
+      commandsHandler  : commandsHandlerFn
+    }
+  })();
+
+  $(document).ready(Display.init);
+</script>
+
+</body>
+</html>

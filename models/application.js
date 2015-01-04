@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 
 var ApplicationSchema = new mongoose.Schema({
-  name: {
+  title: {
     type: String,
     unique: true,
     required: true,
@@ -9,12 +9,12 @@ var ApplicationSchema = new mongoose.Schema({
   description: {
     type: String
   },
-  command: {
+  command_word: {
     type: String,
     unique: true,
     required: true
   },
-  userId: {
+  user_id: {
     type: String,
     required: true
   }

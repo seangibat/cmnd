@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
 import urllib
+import urllib2
 import json
 import sys
 import os.path
+import base64
 from os.path import expanduser
 from subprocess import call
 
@@ -12,22 +14,45 @@ config_exists = os.path.isfile(home + '/.cmnd')
 
 def setup():
   config_file = open(home + '/.cmnd', 'w')
-  config_file.write("Hello!")
-  raw_input("We'll need to open a browser to http://cmnd.center so you can authorize this client. Press enter.")
-  call(["open", "http://localhost:3001/api/commands"])
+  username = raw_input("We need to authenticate first. What is your username?\n")
+  password = raw_input("And your password? (this is only exchanged for a token, not stored)\n")
 
-def command():
-  print "command"
-  config_file.close()
+  request = urllib2.Request("http://localhost:3001/api/oauth2/native/54a1fbe9a09c17c47e1e8ec5")
+  base64string = base64.encodestring('%s:%s' % (username, password)).replace('\n', '')
+  request.add_header("Authorization", "Basic %s" % base64string)   
+
+  try:
+    response = urllib2.urlopen(request)
+  except urllib2.URLError, e:
+    if e.code == 401:
+        print "That username and password did not work."
+    else:
+        print "There was a problem of type: " + str(e.code)
+  else:
+    text = json.loads(response.read())
+    config_file.write(text['value'])
+    response.close()
+    print "Successfully authenticated. You may now issue commands."
+
+def command(access_token):
+  command = {}
+  command['command_word'] = sys.argv[1];
+  command['message'] = (' ').join(sys.argv[2:])
+  req = urllib2.Request("http://localhost:3001/api/commands")
+  req.add_header('Authorization', 'Bearer ' + access_token)
+  req.add_data(urllib.urlencode(command))
+  response = urllib2.urlopen(req)
+  obj = json.loads(response.read())
+  print json.dumps(obj, indent=2, separators=(',', ': '))
+  response.close()
 
 if not config_exists or len(sys.argv) == 1 or sys.argv[1] == "setup":
   setup()
 elif config_exists:
   config_file = open(home + '/.cmnd', 'r')
   access_token = config_file.read()
-  print access_token
+  config_file.close()
   if len(access_token) != 256:
-    config_file.close()
     setup()
   else:
-    command(config_file)
+    command(access_token)

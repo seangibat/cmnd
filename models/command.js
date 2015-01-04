@@ -2,9 +2,10 @@ var mongoose = require('mongoose');
 
 // Define our beer schema
 var CommandSchema   = new mongoose.Schema({
-  application: String,
-  message: String,
-  userId: String
+  application : String,
+  message     : String,
+  user_id     : String,
+  timestamp   : { type : Date, default: Date.now }
 });
 
 // Export the Mongoose model

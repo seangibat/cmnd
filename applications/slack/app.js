@@ -1,5 +1,5 @@
 exports.command = function(command,res){
-  res.send(command.message);
+  res.json({message: command.message + " okay?!"});
 };
 
 exports.getRedirect = function(data,res){
@@ -10,6 +10,6 @@ exports.postRedirect = function(data, res){
   res.send("Hello!");
 };
 
-exports.configPage = function(data, res){
-
+exports.configPage = function(data, callback){
+  callback("No config. You're good to go!");
 };

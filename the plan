@@ -33,6 +33,30 @@ potentially could develop a standard set of tests????
 
 RIGHT NOW
 ----
-post slack to applications
-add slack to sean user
-make slack module console log a command
+website should be able to
+
+send commands to the server
+view all commands
+view all users plugins
+view all plugins and add them (don't show users plugins here)
+
+
+so we need
+
+command input at the top
+
+Commands tab
+Your Plugins tab
+Add Plugins tab
+
+{
+    "message": "Client registered. Please save your _id and secret.",
+    "data": {
+        "__v": 0,
+        "user_id": "54a1fa8b5d842f2a7a455ab2",
+        "secret": "7qli1bXi7nwYFCFRmXg2zae4",
+        "id": "RfP5Esc5tC8ANTS1",
+        "name": "cmndterm",
+        "_id": "54a1fbe9a09c17c47e1e8ec5"
+    }
+}

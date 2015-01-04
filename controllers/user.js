@@ -6,31 +6,30 @@ var Application = require('../models/application');
 exports.postUsers = function(req, res) {
   var user = new User({
     username: req.body.username,
-    password: req.body.password
+    password: req.body.password,
+    email: req.body.email
   });
 
   user.save(function(err) {
     if (err) res.send(err);
 
-    res.json({ message: 'New user added.' });
+    res.redirect('/dashboard');
   });
 };
 
 // Create endpoint /api/users for GET
 exports.getUsers = function(req, res) {
   User.find(function(err, users) {
-    if (err)
-      res.send(err);
-
+    if (err) res.send(err);
     res.json(users);
   });
 };
 
 exports.postUsersApplications = function(req, res) {
-  if (req.user._id != req.params.user_id) return res.json({ message: "Cannot add appliation to other users." });
-  Application.findOne({ _id: req.body.application_id }, function(err, app){
+  Application.findOne({ command_word: req.body.command_word }, function(err, app){
     if (err) return res.send(err);
-    req.user.applications.push(app.command);
+    if (!app) return res.send({ message: "Application not found." });
+    req.user.applications.push(app.command_word);
     req.user.save(function(err){
       if (err) res.json({ message: 'Error adding application. '});
       res.json({ message: 'Application added.', data: req.user });
@@ -39,8 +38,52 @@ exports.postUsersApplications = function(req, res) {
 }
 
 exports.getUsersApplications = function(req, res) {
-  User.findOne({ _id: req.params.user_id }, function(err, user){
-    if (err) res.send(err);
-    res.send(user.applications);
+  var apps = [];
+  var processApplcations = function(app){
+    apps.push(app);
+    if (apps.length == req.user.applications.length) {
+      res.json(apps);
+    }
+  };
+
+  req.user.applications.forEach(function(app){
+    Application.findOne({ command_word: app }, function(err, app) {
+      if (err) res.send(err);
+      processApplcations(app);
+    });
+  });
+}
+
+exports.getUsersApplicationsWithConfig = function(req, res) {
+  var apps = [];
+  var processApplcations = function(app){
+    try {
+      var handler = require('../applications/' + app.command_word + '/app.js');
+      var data = {
+        user: {
+          _id: req.user._id
+        },
+        postPath: 'http://localhost:3001/api/applications/' + app.command_word + '/redirect'
+      };
+      handler.configPage(data,function(configHtml){
+        app = app.toObject();
+        app.configHtml = configHtml;
+        app.postPath = 
+        apps.push(app);
+        if (apps.length == req.user.applications.length) {
+          res.json(apps);
+        }
+      });
+    }
+    catch(err) {
+      console.log("Problem getting app handler.", err);
+    }
+  };
+
+  req.user.applications.forEach(function(app){
+    Application.findOne({ command_word: app }, function(err, app) {
+      if (err) res.send(err);
+      processApplcations(app);
+    });
   });
 }

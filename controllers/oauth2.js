@@ -20,9 +20,9 @@ server.deserializeClient(function(id, callback){
 server.grant(oauth2orize.grant.code(function(client, redirectUri, user, ares, callback){
   var code = new Code({
     value: uid(16),
-    clientId: client._id,
-    redirectUri: redirectUri,
-    userId: user._id
+    client_id: client._id,
+    redirect_uri: redirect_uri,
+    user_id: user._id
   });
 
   code.save(function(err){
@@ -35,16 +35,16 @@ server.exchange(oauth2orize.exchange.code(function(client, code, redirectUri, ca
   Code.findOne({ value: code }, function (err, authCode) {
     if (err) return callback(err);
     if (authCode === undefined) return callback(null, false);
-    if (client._id.toString() !== authCode.clientId) return callback(null, false);
-    if (redirectUri !== authCode.redirectUri) return callback(null, false);
+    if (client._id.toString() !== authCode.client_id) return callback(null, false);
+    if (redirectUri !== authCode.redirect_uri) return callback(null, false);
 
     authCode.remove(function(err){
       if(err) return callback(err);
 
       var token = new Token({
         value: uid(256),
-        clientId: authCode.clientId,
-        userId: authCode.userId
+        client_id: authCode.client_id,
+        user_id: authCode.user_id
       });
 
       token.save(function(err){
@@ -55,6 +55,25 @@ server.exchange(oauth2orize.exchange.code(function(client, code, redirectUri, ca
     });
   });
 }));
+
+exports.signIn = function(req, res){
+  console.log(req.params);
+  Client.find({_id: req.params.client_id }, function(err, client){
+    if (!client) return res.json({ message: 'No such client' });
+    Token.findOne({ user_id: req.user._id, client_id: req.params.client_id }, function(err, token){
+      console.log(err, token);
+      if (token) return res.json(token);
+      var token = new Token({
+        value: uid(256),
+        client_id: req.params.client_id,
+        user_id: req.user._id
+      });
+      token.save(function(err){
+        res.json(token);
+      });
+    });
+  });
+};
 
 exports.authorization = [
   server.authorization(function(clientId, redirectUri, callback){
@@ -78,6 +97,10 @@ exports.token = [
 ]
 
 function uid (len) {
+  var getRandomInt = function(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
   var buf = []
     , chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
     , charlen = chars.length;
@@ -88,9 +111,5 @@ function uid (len) {
 
   return buf.join('');
 };
-
-function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
 
 

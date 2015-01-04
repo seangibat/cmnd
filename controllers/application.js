@@ -1,7 +1,21 @@
 var Application = require('../models/application');
 
+exports.config = function(req,res){
+  Application.findOne({ command_word: req.params.command_word }, function(err, app){
+    if (err) return res.send(err);
+    if (!app) return res.json("Application not found");
+    var handler = require('../applications/' + req.params.command_word + '/app.js');
+    var data = {
+      user: {
+        _id: req.user._id
+      }
+    };
+    handler.config(data,res.send);
+  });
+};
+
 exports.getRedirect = function(req,res){
-  Application.findOne({ command: req.params.command_word }, function(err, app){
+  Application.findOne({ command_word: req.params.command_word }, function(err, app){
     if (err) return res.send(err);
     if (!app) return res.json("Application not found");
     var handler = require('../applications/' + req.params.command_word + '/app.js');
@@ -16,7 +30,7 @@ exports.getRedirect = function(req,res){
 };
 
 exports.postRedirect = function(req,res){
-  Application.findOne({ command: req.params.command_word }, function(err, app){
+  Application.findOne({ command_word: req.params.command_word }, function(err, app){
     if (err) return res.send(err);
     if (!app) return res.json("Application not found");
     var handler = require('../applications/' + req.params.command_word + '/app.js');
@@ -37,8 +51,19 @@ exports.getApplications = function(req,res){
   });
 };
 
+exports.getApplicationsNotAdded = function(req,res){
+  Application.find(function(err, apps) {
+    if (err) res.send(err);
+    var filteredApps = apps.filter(function(app){
+      return req.user.applications.indexOf(app.command_word) == -1;
+    });
+    console.log(filteredApps);
+    res.json(filteredApps);
+  });
+};
+
 exports.getApplication = function(req,res){
-  Application.findOne({ command: req.params.command_word }, function(err, app) {
+  Application.findOne({ command_word: req.params.command_word }, function(err, app) {
     if (err) res.send(err);
     res.json(app);
   });
@@ -47,10 +72,10 @@ exports.getApplication = function(req,res){
 exports.postApplications = function(req,res){
   var app = new Application();
 
-  app.name = req.body.name;
+  app.title = req.body.title;
   app.description = req.body.description;
-  app.command = req.body.command;
-  app.userId = req.user._id;
+  app.command_word = req.body.command_word;
+  app.user_id = req.user._id;
 
   app.save(function(err){
     if (err) res.send(err);

@@ -1,3 +1,5 @@
+var SESSION_KEY = process.env.SESSION_KEY;
+
 var express = require('express');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
@@ -11,8 +13,9 @@ var authController = require('./controllers/auth');
 var clientController = require('./controllers/client');
 var oauth2Controller = require('./controllers/oauth2');
 var applicationController = require('./controllers/application');
+var mainController = require('./controllers/main');
 
-mongoose.connect('mongodb://localhost:27017/cmnd');
+mongoose.connect('mongodb://localhost:27017/cmnd-development');
 
 var app = express();
 app.use(bodyParser.urlencoded({
@@ -21,59 +24,78 @@ app.use(bodyParser.urlencoded({
 app.use(passport.initialize());
 app.set('view engine', 'ejs');
 app.use(session({
-  secret: 'Super Secret Session Key',
+  secret: SESSION_KEY,
   saveUninitalized: true,
   resave: true
 }));
+app.use(express.static(__dirname + '/public'));
 
-var port = process.env.PORT || 3001;
+var port = process.env.PORT || 3000;
 
-var router = express.Router();
+var apiRouter = express.Router();
 
-router.get('/', function(req, res) {
-  res.json({ message: 'Default get route' });
-});
-
-router.route('/commands')
+apiRouter.route('/commands')
   .post(authController.isAuthenticated, commandController.postCommands)
   .get(authController.isAuthenticated, commandController.getCommands);
 
-router.route('/commands/:command_id')
+apiRouter.route('/commands/:command_id')
   .get(authController.isAuthenticated, commandController.getCommand);
 
-router.route('/users')
+apiRouter.route('/users')
   .post(userController.postUsers)
   .get(authController.isAuthenticated, userController.getUsers);
 
-router.route('/users/:user_id/applications')
+apiRouter.route('/user/applications')
   .post(authController.isAuthenticated, userController.postUsersApplications)
   .get(authController.isAuthenticated, userController.getUsersApplications);
 
-router.route('/clients')
+apiRouter.route('/user/applicationsconfig')
+  .get(authController.isAuthenticated, userController.getUsersApplicationsWithConfig);
+
+apiRouter.route('/user/applicationsnotadded')
+  .get(authController.isAuthenticated, applicationController.getApplicationsNotAdded);
+
+apiRouter.route('/clients')
   .post(authController.isAuthenticated, clientController.postClients)
   .get(authController.isAuthenticated, clientController.getClients);
 
-router.route('/oauth2/authorize')
+apiRouter.route('/oauth2/authorize')
   .get(authController.isAuthenticated, oauth2Controller.authorization)
   .post(authController.isAuthenticated, oauth2Controller.decision);
 
-router.route('/oauth2/token')
+apiRouter.route('/oauth2/token')
   .post(authController.isClientAuthenticated, oauth2Controller.token);
 
+apiRouter.route('/oauth2/native/:client_id')
+  .get(authController.isAuthenticated, oauth2Controller.signIn);
+
 // Routes that applications get for use in setting up. Directories based on the command.
-router.route('/applications/:command_word/redirect/')
+apiRouter.route('/applications/:command_word/redirect/')
   .get(authController.isAuthenticated, applicationController.getRedirect)
   .post(authController.isAuthenticated, applicationController.postRedirect);
 
-router.route('/applications/')
+  apiRouter.route('/applications/:command_word/config/')
+    .get(authController.isAuthenticated, applicationController.config);
+
+apiRouter.route('/applications/')
   .get(authController.isAuthenticated, applicationController.getApplications)
   .post(authController.isAuthenticated, applicationController.postApplications);
 
-router.route('/applications/:command_word')
+apiRouter.route('/applications/:command_word')
   .get(authController.isAuthenticated, applicationController.getApplication);
 
+
+var mainRouter = express.Router();
+
+mainRouter.route('/')
+  .get(mainController.home);
+
+mainRouter.route('/dashboard')
+  .get(authController.isAuthenticated, mainController.dashboard);
+
 // Register all our routes with /api
-app.use('/api', router);
+app.use('/api', apiRouter);
+app.use('/', mainRouter);
 
 // Start the server
 app.listen(port);

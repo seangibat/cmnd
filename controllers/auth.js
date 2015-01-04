@@ -10,9 +10,8 @@ passport.use(new BasicStrategy(
     User.findOne({ username : username }, function(err, user){
       if (err) return callback(err);
       if (!user) return callback(null, false);
-      user.verifyPassword(password, function(Err, isMatch) {
+      user.verifyPassword(password, function(err, isMatch) {
         if (err) return callback(err);
-
         if (!isMatch) { return callback(null, false); }
         return callback(null, user);
       });
@@ -26,7 +25,6 @@ passport.use('client-basic', new BasicStrategy(
       console.log(username, password, client);
       if (err) return callback(err);
       if (!client || client.secret !== password) return callback(null, false);
-
       return callback(null, client);
     })
   }
@@ -35,9 +33,10 @@ passport.use('client-basic', new BasicStrategy(
 passport.use(new BearerStrategy(
   function(accessToken, callback) {
     Token.findOne({ value: accessToken }, function (err, token){
+      console.log(err, token);
       if (err) return callback(err);
       if (!token) return callback(null, false);
-      User.findOne({_id: token.userId }, function(err, user){
+      User.findOne({_id: token.user_id }, function(err, user){
         if (err) return callback(err);
         if (!user) return callback(null, false);
         callback(null, user, { scope: '*' });
