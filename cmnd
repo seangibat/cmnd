@@ -36,14 +36,22 @@ def setup():
 
 def command(access_token):
   command = {}
-  command['command_word'] = sys.argv[1];
-  command['message'] = (' ').join(sys.argv[2:])
+  start = 1
+  print_json = False
+  if sys.argv[1] == "-j":
+    start = 2
+    print_json = True
+  command['command_word'] = sys.argv[start];
+  command['message'] = (' ').join(sys.argv[start+1:])
   req = urllib2.Request("http://localhost:3001/api/commands")
   req.add_header('Authorization', 'Bearer ' + access_token)
   req.add_data(urllib.urlencode(command))
   response = urllib2.urlopen(req)
   obj = json.loads(response.read())
-  print json.dumps(obj, indent=2, separators=(',', ': '))
+  if print_json:
+    print json.dumps(obj, indent=2, separators=(',', ': '))
+  else:
+    print json.dumps(obj, indent=0, separators=(',', ': '))[2:-2].replace('\"','')
   response.close()
 
 if not config_exists or len(sys.argv) == 1 or sys.argv[1] == "setup":

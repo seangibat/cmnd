@@ -135,7 +135,7 @@
     var allAppsHandlerFn = function(){
       $tabs.hide();
       $allApps.show();
-      $.get('http://localhost:3001/api/user/applicationsnotadded', function(data){
+      $.get('/api/user/applicationsnotadded', function(data){
         $allApps.html(allAppsTemplate(data));
       });
     };
@@ -143,7 +143,7 @@
     var yourAppsHandlerFn = function(){
       $tabs.hide();
       $yourApps.show();
-      $.get('http://localhost:3001/api/user/applicationsconfig', function(data){
+      $.get('/api/user/applicationsconfig', function(data){
         $yourApps.html(yourAppsTemplate(data));
       });
     };
