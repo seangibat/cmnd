@@ -9,11 +9,10 @@ var dir = __dirname;
 
 exports.command = function(command,res){
   Weather.findOne({ user_id: command.user_id }, function(err, weatherConfig){
-    request('http://api.wunderground.com/api/'+ WUNDERGROUND_API_KEY +'/conditions/q/CA/San_Francisco.json', function (error, response, body) {
+    zipcode = (/\b\d{5}\b/.test(command.message)) ? command.message : (weatherConfig) ? weatherConfig.zipcode : null;
+    if (!zipcode) return res.json({ message: "No zipcode specified, no default zipcode."});
+    request('http://api.wunderground.com/api/'+ WUNDERGROUND_API_KEY +'/conditions/q/CA/' + zipcode + '.json', function (error, response, body) {
       if (!error && response.statusCode == 200) {
-        args = parseArgs(command.message);
-        zipcode = args.z || (weatherConfig) ? weatherConfig.zipcode : null;
-        if (!zipcode) return res.json({ message: "No zipcode specified, no default zipcode."});
         body = JSON.parse(body);
         var result = {};       
         result.location = body.current_observation.display_location.full;
