@@ -63,7 +63,7 @@ exports.getUsersApplicationsWithConfig = function(req, res) {
         user: {
           _id: req.user._id
         },
-        postPath: 'http://localhost:3001/api/applications/' + app.command_word + '/redirect'
+        postPath: '/api/applications/' + app.command_word + '/redirect'
       };
       handler.configPage(data,function(configHtml){
         app = app.toObject();

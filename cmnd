@@ -11,7 +11,7 @@ from subprocess import call
 
 home = expanduser("~")
 config_exists = os.path.isfile(home + '/.cmnd') 
-domain = "http://localhost:3001"
+domain = "http://cmnd.center"
 
 def setup():
   config_file = open(home + '/.cmnd', 'w')
@@ -53,6 +53,10 @@ def command(access_token):
   except urllib2.HTTPError, e:
     if e.code == 401:
       setup()
+      return
+    else:
+      print e.code
+      print e
       return
   
   obj = json.loads(response.read())
