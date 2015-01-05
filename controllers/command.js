@@ -1,8 +1,14 @@
 var Command = require('../models/command');
+var FuzzySet = require('fuzzyset.js');
 
 exports.postCommands = function(req,res){
   var contains = req.user.applications.some(function(item){ return item === req.body.command_word });
-  if (!contains) return res.json({ message: "User has not added application." });
+  if (!contains) {
+    var set = FuzzySet(req.user.applications);
+    contains = set.get(req.body.command_word)[0][1];
+    if (!contains) return res.json({ message: "User has not added application." });
+    req.body.command_word = contains;
+  } 
 
   var command = new Command();
   command.application = req.body.command_word;
