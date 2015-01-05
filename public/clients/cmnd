@@ -11,7 +11,7 @@ from subprocess import call
 
 home = expanduser("~")
 config_exists = os.path.isfile(home + '/.cmnd') 
-domain = "http://cmnd.center"
+domain = "https://cmnd.center"
 
 def setup():
   config_file = open(home + '/.cmnd', 'w')
