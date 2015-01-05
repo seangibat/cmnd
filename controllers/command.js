@@ -5,9 +5,9 @@ exports.postCommands = function(req,res){
   var contains = req.user.applications.some(function(item){ return item === req.body.command_word });
   if (!contains) {
     var set = FuzzySet(req.user.applications);
-    contains = set.get(req.body.command_word)[0][1];
+    contains = set.get(req.body.command_word);
     if (!contains) return res.json({ message: "User has not added application." });
-    req.body.command_word = contains;
+    req.body.command_word = contains[0][1];;
   } 
 
   var command = new Command();
