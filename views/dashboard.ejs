@@ -63,12 +63,13 @@
       </div>
     {{/each}}
     {{#unless this }}
-    <div class="row">
-    <div class="large-12 text-center">
-        <div class="panel">
-          you have added all applications.
+      <div class="row">
+        <div class="large-12 text-center">
+          <div class="panel">
+            you have added all applications.
+          </div>
         </div>
-        </div></div>
+      </div>
     {{/unless}}
   </script>
 
@@ -83,7 +84,21 @@
         </p>
       </div>
     {{/each}}
+  </script>
 
+  <script id="commandsTemplate" type="text/x-handlebars-template">
+    <div class="tab" id="commandsContainer">
+      <table class="commands-table">
+        <tr><th>apps</th><th>commands</th><th>timestamps</th></tr>
+        {{#each this}}
+          <tr>
+            <td class="application-cell">{{ application }}</td>
+            <td class="message-cell">{{ message }}</td>
+            <td class="timestamp-cell">{{timestamp}}</td>
+          </tr>
+        {{/each}}
+      </table>
+    </div>
   </script>
 
 </head>
@@ -95,7 +110,7 @@
     <span id="commandsNav" class="topTab">your commands</span> &#183; 
     <span id="yourAppsNav" class="topTab">your applications</span> &#183; 
     <span id="allAppsNav" class="topTab">all applications</span> &#183; 
-    <span id="submitAppsNav" class="topTab">submit applications</span>
+    <span id="clientsNav" class="topTab">clients</span>
   </div>
 </div>
 
@@ -115,14 +130,26 @@
       </table>
     </div>
 
-    <div class="tab clear" id="yourApps">
-      
-    </div>
+    <div class="tab clear" id="yourApps"></div>
+    <div class="tab" id="allApps"></div>
 
-    <div class="tab" id="allApps">
-    </div>
-
-    <div class="tab" id="pane4">
+    <div class="tab" id="clientsContainer">
+      <div class="row">
+        <div class="large-12">
+          <div class="panel">
+            <p>There is only one client right now: a terminal application written in Python. It should work in all Unix environments.</p>
+            <p><h3>Download here: <a href="/clients/cmnd">cmnd terminal client</a></h3></p>
+            <p><strong>Installation instructions:</strong></p>
+            <ul>
+              <li>Make the script executable: <strong>chmod 755 cmnd</strong></li>
+              <li>Copy it to /usr/local/bin so it is executable anywhere: <strong>cp cmnd /usr/local/bin</strong></li>
+              <li>Run <strong>cmnd setup</strong> to authenticate with cmnd's server.</li>
+              <li>That's it. Try running a few commands, if you've added an application.</li>
+            </ul>
+            <p>In the future, hopefully, maybe, SDKs will be released for developing clients as well as applications.</p>
+          </div>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -132,7 +159,7 @@
   var Display = (function(){
     var allAppsTemplate, yourAppsTemplate, $yourApps, $allApps, $commandsContainer, $tabs;
 
-    var allAppsHandlerFn = function(){
+    var allAppsHandler = function(){
       $tabs.hide();
       $allApps.show();
       $.get('/api/user/applicationsnotadded', function(data){
@@ -140,7 +167,7 @@
       });
     };
 
-    var yourAppsHandlerFn = function(){
+    var yourAppsHandler = function(){
       $tabs.hide();
       $yourApps.show();
       $.get('/api/user/applicationsconfig', function(data){
@@ -148,32 +175,39 @@
       });
     };
 
-    var commandsHandlerFn = function(){
+    var commandsHandler = function(){
       $tabs.hide();
       $commandsContainer.show();
+      $.get('/api/commands', function(data){
+        $yourApps.html(yourAppsTemplate(data));
+      });
     };
 
-    var initFn = function(){
+    var clientsHandler = function(){
+      $tabs.hide();
+      $clientsContainer.show();
+    };
+
+    var init = function(){
       allAppsTemplate = Handlebars.compile($("#allAppsTemplate").html());
       yourAppsTemplate = Handlebars.compile($("#yourAppsTemplate").html());
+      commandsTemplate = Handlebars.compile($("#commandsTemplate").html());
       $yourApps = $('#yourApps');
       $allApps = $('#allApps');
       $commandsContainer = $('#commandsContainer');
+      $clientsContainer = $('#clientsContainer');
       $tabs = $('.tab');
-      $(document).on('click','#yourAppsNav', Display.yourAppsHandler);
-      $(document).on('click','#allAppsNav', Display.allAppsHandler);
-      $(document).on('click','#commandsNav', Display.commandsHandler);
+      $(document).on('click','#yourAppsNav', yourAppsHandler);
+      $(document).on('click','#allAppsNav', allAppsHandler);
+      $(document).on('click','#commandsNav', commandsHandler);
+      $(document).on('click','#clientsNav', clientsHandler);
     }
 
-    return {
-      init            : initFn,
-      yourAppsHandler : yourAppsHandlerFn,
-      allAppsHandler  : allAppsHandlerFn,
-      commandsHandler  : commandsHandlerFn
-    }
+    $(document).ready(init);
+
+    return { }
   })();
 
-  $(document).ready(Display.init);
 </script>
 
 </body>
