@@ -120,7 +120,7 @@
     <div class="tab" id="commandsContainer">
       <table class="commands-table">
         <tr><th>apps</th><th>commands</th><th>timestamps</th></tr>
-        <% commands.forEach(function(command){ %>
+        <% commands.reverse().forEach(function(command){ %>
           <tr>
             <td class="application-cell"><%= command.application %></td>
             <td class="message-cell"><%= command.message %></td>
@@ -141,6 +141,11 @@
             <p><h3>Download here: <a href="/clients/cmnd">cmnd terminal client</a></h3></p>
             <p><strong>Installation instructions:</strong></p>
             <ul>
+              <li>
+                tldr, in the same folder as cmnd:<br>
+                <strong>chmod 755 cmnd<br>cp cmnd /usr/local/bin<br>cmnd setup</strong>
+              </li>
+              <li>Explanation:</li>
               <li>Make the script executable: <strong>chmod 755 cmnd</strong></li>
               <li>Copy it to /usr/local/bin so it is executable anywhere: <strong>cp cmnd /usr/local/bin</strong></li>
               <li>Run <strong>cmnd setup</strong> to authenticate with cmnd's server.</li>
@@ -179,7 +184,7 @@
       $tabs.hide();
       $commandsContainer.show();
       $.get('/api/commands', function(data){
-        $yourApps.html(yourAppsTemplate(data));
+        $commandsContainer.html(commandsTemplate(data.reverse()));
       });
     };
 

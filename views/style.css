@@ -1,0 +1,171 @@
+html, body, div, span, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, code,
+del, dfn, em, img, q, dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td 
+{
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-weight: inherit;
+  font-style: inherit;
+  font-family: inherit;
+  vertical-align: baseline;
+}
+
+hr 
+{
+  visibility:hidden;
+  height:0;
+  border:0;
+  margin:0;
+}
+
+body 
+{ 
+  line-height: 1.5; 
+  background: #fff; 
+  font-family: Times, serif;
+  font-size: 1em;
+}
+
+.login-container
+{
+  margin: 0 auto;
+  width: 650px;
+  margin-bottom: 5em;
+  margin-top: 1em;
+}
+
+.input-container
+{
+  margin-left: 130px;
+}
+
+input 
+{
+  margin-right: .25em;
+  font-family: times;
+  font-size: .7em;
+  padding: .3em;
+} 
+
+input[type=submit]
+{
+  background-color: white;
+}
+
+.page-container
+{
+  width: 650px;
+  margin: 0 auto;
+}
+
+.navigation
+{
+  list-style: none;
+  margin-bottom: 0em;
+}
+
+.section
+{
+  float: left;
+  width: 130px;
+}
+
+.section ul {
+  list-style: none;
+}
+
+.article a, .article a:visited {
+  color: #AAA;
+  text-decoration: none;
+}
+
+.content
+{
+  clear: both;
+  position: relative;
+  top: 5em;
+}
+
+h5
+{
+  font-size: 1em;
+  text-align: right;
+  color: #AAA;
+  width: 100px;
+}
+
+.content-section
+{
+  float: left;
+}
+
+.content-paragraph
+{
+  margin-left: 130px;
+  width: 30em;
+  margin-bottom: 2em;
+  text-align: justify;
+}
+
+.content-paragraph input
+{
+  margin-bottom: .5em;
+  line-height: 1.5em
+}
+
+.content-paragraph input:last-child
+{
+  margin-bottom: 0;
+}
+
+input 
+{
+  font-family: times;
+  font-size: 1em;
+  border: 1px solid #CCC;
+  color: #AAA;
+}
+
+@media (max-width : 768px){
+
+  * {
+    font-size: 1em !important;
+  }
+
+  .login-container {
+    width: auto;
+    margin: 2em auto 2em;
+  }
+
+  .input-container {
+    margin: auto;
+    width: 200px;
+  }
+
+  .login-container input {
+    display: block;
+    margin-bottom: 1em;
+  }
+
+  .page-container {
+    width: auto;
+  }
+
+  .section {
+    margin-bottom: 2em;
+    margin-left: 2em;
+  }
+
+  .content {
+    top: 0;
+  }
+
+  .content-paragraph {
+    width: auto;
+    margin-right: 2em;
+  }
+}
