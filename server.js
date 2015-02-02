@@ -1,4 +1,4 @@
-var SESSION_KEY = process.env.SESSION_KEY;
+var SESSION_KEY = process.env.SESSION_KEY || "development";
 
 var express = require('express');
 var mongoose = require('mongoose');
@@ -6,98 +6,48 @@ var bodyParser = require('body-parser');
 var ejs = require('ejs');
 var passport = require('passport');
 var session = require('express-session');
+var User = require('./models/userModel');
 
-var commandController = require('./controllers/command');
-var userController = require('./controllers/user');
-var authController = require('./controllers/auth');
-var clientController = require('./controllers/client');
-var oauth2Controller = require('./controllers/oauth2');
-var applicationController = require('./controllers/application');
-var mainController = require('./controllers/main');
+var apiRouter = require('./routes/api');
+var portalRouter = require('./routes/portal');
 
 mongoose.connect('mongodb://localhost:27017/cmnd-development');
 
 var app = express();
+
 app.use(bodyParser.urlencoded({
   extended: true
 }));
-app.use(passport.initialize());
+
 app.set('view engine', 'ejs');
+
+app.use(passport.initialize());
+
 app.use(session({
   secret: SESSION_KEY,
   saveUninitalized: true,
   resave: true
 }));
+
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+  User.findById(id, function(err, user) {
+    done(err, user);
+  });
+});
+
 app.use(express.static(__dirname + '/public'));
 
 var port = process.env.PORT || 3000;
 
-var apiRouter = express.Router();
-
-apiRouter.route('/commands')
-  .post(authController.isAuthenticated, commandController.postCommands)
-  .get(authController.isAuthenticated, commandController.getCommands);
-
-apiRouter.route('/commands/:command_id')
-  .get(authController.isAuthenticated, commandController.getCommand);
-
-apiRouter.route('/users')
-  .post(userController.postUsers)
-  .get(authController.isAuthenticated, userController.getUsers);
-
-apiRouter.route('/user/applications')
-  .post(authController.isAuthenticated, userController.postUsersApplications)
-  .get(authController.isAuthenticated, userController.getUsersApplications);
-
-apiRouter.route('/user/applicationsconfig')
-  .get(authController.isAuthenticated, userController.getUsersApplicationsWithConfig);
-
-apiRouter.route('/user/applicationsnotadded')
-  .get(authController.isAuthenticated, applicationController.getApplicationsNotAdded);
-
-apiRouter.route('/clients')
-  .post(authController.isAuthenticated, clientController.postClients)
-  .get(authController.isAuthenticated, clientController.getClients);
-
-apiRouter.route('/oauth2/authorize')
-  .get(authController.isAuthenticated, oauth2Controller.authorization)
-  .post(authController.isAuthenticated, oauth2Controller.decision);
-
-apiRouter.route('/oauth2/token')
-  .post(authController.isClientAuthenticated, oauth2Controller.token);
-
-apiRouter.route('/oauth2/native/:client_id')
-  .get(authController.isAuthenticated, oauth2Controller.signIn);
-
-// Routes that applications get for use in setting up. Directories based on the command.
-apiRouter.route('/applications/:command_word/redirect/')
-  .get(authController.isAuthenticated, applicationController.getRedirect)
-  .post(authController.isAuthenticated, applicationController.postRedirect);
-
-  apiRouter.route('/applications/:command_word/config/')
-    .get(authController.isAuthenticated, applicationController.config);
-
-apiRouter.route('/applications/')
-  .get(authController.isAuthenticated, applicationController.getApplications)
-  .post(authController.isAuthenticated, applicationController.postApplications);
-
-apiRouter.route('/applications/:command_word')
-  .get(authController.isAuthenticated, applicationController.getApplication);
-
-
-var mainRouter = express.Router();
-
-mainRouter.route('/')
-  .get(mainController.home);
-
-mainRouter.route('/dashboard')
-  .get(authController.isAuthenticated, mainController.dashboard);
-
-// Register all our routes with /api
+// Routes
+app.use('/', portalRouter);
 app.use('/api', apiRouter);
-app.use('/', mainRouter);
 
 // Start the server
 app.listen(port);
 
-console.log('Insert command on port ' + port);
+console.log('Running on port ' + port);

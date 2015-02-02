@@ -111,15 +111,20 @@ h5
   text-align: justify;
 }
 
-.content-paragraph input
+.content-paragraph form input
 {
   margin-bottom: .5em;
   line-height: 1.5em
 }
 
-.content-paragraph input:last-child
+.content-paragraph form input:last-child
 {
   margin-bottom: 0;
+}
+
+form
+{
+  display: inline-block;
 }
 
 input 

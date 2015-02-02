@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 
-var ApplicationSchema = new mongoose.Schema({
+var PluginSchema = new mongoose.Schema({
   title: {
     type: String,
     unique: true,
@@ -20,4 +20,4 @@ var ApplicationSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model('Application', ApplicationSchema);
+module.exports = mongoose.model('Plugin', PluginSchema);
