@@ -26,9 +26,7 @@ exports.command = function(command,res){
   });
 };
 
-exports.getRedirect = function(req,res){
-  res.send("No get request.");
-};
+exports.getRedirect = 
 
 exports.postRedirect = function(req,res){
   if (!(/\b\d{5}\b/.test(req.body.zipcode))) {

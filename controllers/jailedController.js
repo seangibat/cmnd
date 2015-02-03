@@ -2,7 +2,16 @@ var jailed = require('jailed');
 var FuzzySet = require('fuzzyset.js');
 var Command = require('../models/commandModel');
 var Plugin = require('../models/pluginModel');
+var request = require('request');
+var storage = require('node-persist');
 
+
+var pluginStorage = function(app) {
+  return function(data){
+    if (data !== null || data !== undefined) storage.setItem(app, data);
+    else storage.getItem(app);
+  }
+}
 
 exports.postCommands = function(req,res){
   var contains = req.user.applications.some(function(item){ return item === req.body.command_word });
@@ -10,18 +19,38 @@ exports.postCommands = function(req,res){
     var set = FuzzySet(req.user.applications);
     contains = set.get(req.body.command_word);
     if (!contains) return res.json({ message: "User has not added application." });
-    req.body.command_word = contains[0][1];;
+    req.body.command_word = contains[0][1];
   } 
 
   var command = new Command();
   command.application = req.body.command_word;
   command.message = req.body.message;
   command.user_id = req.user._id;
+
   command.save(function(err){
     if (err) return res.send(err);
     try {
-      var handler = require('../applications/' + command.application + '/app.js');
-      handler.command(command, res);
+      var path = '../applications/' + command.plugin + '/command.js';
+
+      // set of methods to be exported into the plugin
+      var api = {
+        request  : request,
+        res.json : res.end,
+        storage  : pluginStorage
+      }
+
+      var plugin = new jailed.Plugin(path, api);
+
+      plugin.whenConnected(function(){
+        setTimeout(function(){
+          plugin.disconnect();
+          if (!res.finished) {
+            res.json({
+              message: "No response from the plugin."
+            });
+          }
+        },2000);
+      });
     }
     catch(error) {
       res.json({message: "There was a problem with the application."});
