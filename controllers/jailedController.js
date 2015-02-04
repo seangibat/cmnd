@@ -13,49 +13,64 @@ var pluginStorage = function(app) {
   }
 }
 
+var runPlugin = function(plugin, type, message){
+  if (err) return res.send(err);
+
+  var path = '../applications/' + plugin + '/' + type + '.js';
+  var api = {
+    request  : request,
+    response : res.end,
+    message  : message,
+    storage  : pluginStorage,
+    userId   : req.user._id
+  }
+  var plugin = new jailed.Plugin(path, api);
+
+  plugin.whenConnected(function(){
+    setTimeout(function(){
+      if (!res.finished) {
+        res.end({
+          message: "No response from the plugin."
+        });
+      }
+      plugin.disconnect();
+    },2000);
+  });
+};
+
 exports.postCommands = function(req,res){
-  var contains = req.user.applications.some(function(item){ return item === req.body.command_word });
-  if (!contains) {
+
+  var contains = function(){
+    return req.user.applications.some(function(item){ 
+      return item === req.body.command_word 
+    });
+  };
+
+  var fuzzyMatch = function(){
     var set = FuzzySet(req.user.applications);
     contains = set.get(req.body.command_word);
-    if (!contains) return res.json({ message: "User has not added application." });
+    if (!contains) return res.json({ 
+      message: "User has not added application." 
+    });
     req.body.command_word = contains[0][1];
+  };
+
+  if (!contains()) {
+    fuzzyMatch();
   } 
+  var makeCommand = function(cb){
+    var command = new Command();
+    command.plugin = req.body.command_word;
+    command.message = req.body.message;
+    command.user_id = req.user._id;
+    command.save(cb);
+  };
 
-  var command = new Command();
-  command.application = req.body.command_word;
-  command.message = req.body.message;
-  command.user_id = req.user._id;
-
-  command.save(function(err){
-    if (err) return res.send(err);
-    try {
-      var path = '../applications/' + command.plugin + '/command.js';
-
-      // set of methods to be exported into the plugin
-      var api = {
-        request  : request,
-        res.json : res.end,
-        storage  : pluginStorage
-      }
-
-      var plugin = new jailed.Plugin(path, api);
-
-      plugin.whenConnected(function(){
-        setTimeout(function(){
-          plugin.disconnect();
-          if (!res.finished) {
-            res.json({
-              message: "No response from the plugin."
-            });
-          }
-        },2000);
-      });
-    }
-    catch(error) {
-      res.json({message: "There was a problem with the application."});
-    }
+  makeCommand(function(cmd){
+    runPlugin(cmd.plugin, 'command', cmd.message)
   });
+
+
 };
 
 exports.config = function(req,res){

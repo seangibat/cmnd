@@ -14,3 +14,6 @@ Weather.findOne({ user_id: command.user_id }, function(err, weatherConfig){
     }
   });
 });
+
+var userId = application.remote.user;
+application.remote.storage()
