@@ -1,84 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
-  <title>cmnd.center - command line in the cloud</title>
-  <link href='//fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
-  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/foundation/5.5.0/css/foundation.min.css">
-  <style>
-    body {
-      background-color: #040404;
-      font-family: "Inconsolata";
-      overflow-x:hidden;
-    }
-
-    h1 {
-      color: #EEE;
-      text-align: center;
-      font-size: 140px;
-      font-weight:bold;
-      /*font-family: arial;*/
-      letter-spacing: -10px;
-      text-decoration: blink;
-    }
-
-    h3 {
-      text-align: center;
-      color: white;
-      font-family: Inconsolata;
-    }
-    @-webkit-keyframes blinker { from {opacity:1.0;} to {opacity:0.0;} }
-          @keyframes blinker { from {opacity:1.0;} to {opacity:0.0;} }
-
-  .blink {
-     text-decoration:blink;
-
-    -webkit-animation-name:blinker;
-            animation-name:blinker;  
-    -webkit-animation-iteration-count:infinite;  
-            animation-iteration-count:infinite;  
-    -webkit-animation-timing-function:cubic-bezier(1.0,0,0,1.0);
-            animation-timing-function:cubic-bezier(1.0,0,0,1.0);
-    -webkit-animation-duration:1s; 
-            animation-duration:1s; 
-    font-weight: normal;
-    letter-spacing: 0;
-    position: relative;
-    left: 6px;
-    /*top: -17px;*/
-  }
-
-  .button {
-    background-color: #040404;
-    color: white;
-    font-family: Inconsolata;
-    border: 1px solid white !important;
-  }
-  .upper {
-    position: fixed;
-    right: 10px;
-    top: 10px;
-  }
-
-  </style>
+  <title>cmnd</title>
+  <link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <h1>cmnd<span class="blink">_</span></h1>
-  <div class="row">
-    <div class="large-4 medium-3 columns"><<br></div>
-    <div class="medium-6 small-12 large-4 columns">
-      
-      <p class="panel text-justify">cmnd.center is a command line in the cloud. you can add or develop plugins that are accessible from any cmnd.client. typically, this would be your terminal, but could be anything that sends text. in other words, it's an api for apis. the framework is simple; the possibilities are not.</p>
-      <h3>sign up</h3>
 
-      <form action="/api/users" method="POST">
-        <input type="text" name="username" placeholder="email">
-        <input type="password" name="password" placeholder="password">
-        <input type="submit" class="button expand radius" value="ok">
+<div class="login-container">
+  <div class="input-container">
+    <input name="username" type="text"><input name="password" type="password"><input value="login" type="submit">
+  </div>
+</div>
+
+<div class="page-container">
+  <ul class="navigation">
+    <li class="section">
+      cmnd
+    </li>
+    <li class="section">
+      about
+      <ul>
+        <li class="article">
+          <a href="">introduction</a>
+        </li>
+        <li class="article">
+          <a href="">register</a>
+        </li>
+        <li class="article">
+          <a href="">login</a>
+        </li>
+        <li class="article">
+          <a href="">github</a>
+        </li>
+      </ul>
+    </li>
+    <li class="section">
+      dashboard
+      <ul>
+        <li class="article">
+          <a href="http://www.google.com/somet/wttwt">your history</a>
+        </li>
+        <li class="article">
+          <a href="">your plugins</a>
+        </li>
+        <li class="article">
+          <a href="">all plugins</a>
+        </li>
+        <li class="article">
+          <a href="">clients</a>
+        </li>
+      </ul>
+    </li>
+    <li class="section">
+      submit
+      <ul>
+        <li class="article">
+          <a href="">submit plugin</a>
+        </li>
+        <li class="article">
+          <a href="">register client</a>
+        </li>
+      </ul>
+    </li>
+    <li class="section">
+      docs
+      <ul>
+        <li class="article">
+          <a href="">plugin</a>
+        </li>
+        <li class="article">
+          <a href="">client</a>
+        </li>
+        <li class="article">
+          <a href="">tutorial</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+
+  <div class="content">
+    <h5 class="content-section">what is this?</h5>
+    <p class="content-paragraph">
+      cmnd.center is a command line in the cloud.<br><br>
+      cmnd clients send text to the cmnd API which interacts with plugins a user has previously added.
+    </p>
+    <h5 class="content-section">plugins?</h5>
+    <p class="content-paragraph">
+      you can add or develop plugins that are accessible from any client. plugins are javascript modules that typically interact with APIs. for example, posting your facebook status.
+    </p>
+    <h5 class="content-section">clients?</h5>
+    <p class="content-paragraph">
+      a client sends text to the cmnd API, which routes commands to a users plugins, which process the command. the first client is a command line tool, but it's reasonable to imagine text coming from any source (phone, email, voice..).
+    </p>
+    <h5 class="content-section">examples from the terminal</h5>
+    <p class="content-paragraph">
+      <strong>cmnd facebook</strong> hello everyone I am posting from the terminal<br>
+      <strong>cmnd weather temp 5day</strong><br>
+      <strong>cmnd email</strong> john@smith.net <strong>subject</strong> "We need to talk" <strong>body</strong> "What is the point?"
+    </p>
+    <h5 class="content-section">why?</h5>
+    <p class="content-paragraph">
+      because you can add a common set of tools once in one place and it is available in all of your environments after one pip install.
+    </p>
+    <h5 class="content-section">register</h5>
+    <div class="content-paragraph">
+      <form method="POST" action="/api/user">
+        <input type="text" name="username" placeholder="email/username"><br>
+        <input type="password" name="password" placeholder="password"><br>
+        <input value="register" type="submit">
       </form>
     </div>
-    <div class="large-4 medium-3 columns"><br></div>
+    <h5 class="content-section">who made it?</h5>
+    <p class="content-paragraph">
+      sean gibat, with the assistance and advice of michael morehead, anastasi bakolias, brendan gibat, luis guitteriez, and others
+    </p>
   </div>
-  <p class="upper"><a href="/dashboard">to the dashboard ></a></p>
+</div>
+  
 </body>
 </html>

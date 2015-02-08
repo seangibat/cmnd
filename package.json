@@ -15,12 +15,15 @@
     "express": "^4.10.6",
     "express-session": "^1.9.3",
     "fuzzyset.js": "0.0.1",
+    "jailed": "^0.2.0",
     "minimist": "^1.1.0",
     "mongoose": "^3.8.21",
+    "node-persist": "0.0.3",
     "oauth2orize": "^1.0.1",
     "passport": "^0.2.1",
     "passport-http": "^0.2.2",
     "passport-http-bearer": "^1.0.1",
+    "passport-local": "^1.0.0",
     "request": "^2.51.0"
   }
 }
