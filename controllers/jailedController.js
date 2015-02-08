@@ -18,11 +18,11 @@ var runPlugin = function(plugin, type, message){
 
   var path = '../applications/' + plugin + '/' + type + '.js';
   var api = {
-    request  : request,
-    response : res.end,
-    message  : message,
-    storage  : pluginStorage,
-    userId   : req.user._id
+    request    : request,
+    response   : res.end,
+    getCommand : getCommand,
+    storage    : pluginStorage(plugin),
+    userId     : req.user._id
   }
   var plugin = new jailed.Plugin(path, api);
 
