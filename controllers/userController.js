@@ -31,7 +31,7 @@ exports.postUsersPlugins = function(req, res) {
     req.user.plugins.push(plugin.command_word);
     req.user.save(function(err){
       if (err) res.json({ message: 'Error adding plugin. '});
-      res.json({ message: 'Plugin added.', data: plugin });
+      res.json({ message: plugin.command_word + 'plugin added.' });
     });
   });
 }

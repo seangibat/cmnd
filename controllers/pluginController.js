@@ -7,23 +7,6 @@ exports.getPlugins = function(req,res){
   });
 };
 
-exports.getPluginsNotAdded = function(req,res){
-  Plugin.find(function(err, plugins) {
-    if (err) res.send(err);
-    var filteredPlugins = plugins.filter(function(plugin){
-      return req.user.applications.indexOf(plugin.command_word) == -1;
-    });
-    res.json(filteredPlugins);
-  });
-};
-
-exports.getPlugin = function(req,res){
-  Plugin.findOne({ command_word: req.params.command_word }, function(err, plugin) {
-    if (err) res.send(err);
-    res.json(plugin);
-  });
-};
-
 exports.postPlugins = function(req,res){
   var plugin = new Plugin();
 

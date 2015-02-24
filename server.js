@@ -1,14 +1,14 @@
 var SESSION_KEY = process.env.SESSION_KEY || "development";
 
-var express = require('express');
-var mongoose = require('mongoose');
+var express    = require('express');
+var mongoose   = require('mongoose');
 var bodyParser = require('body-parser');
-var ejs = require('ejs');
-var passport = require('passport');
-var session = require('express-session');
-var User = require('./models/userModel');
+var passport   = require('passport');
+var session    = require('express-session');
+var User       = require('./models/userModel');
+var ejs        = require('ejs');
 
-var apiRouter = require('./routes/api');
+var apiRouter    = require('./routes/api');
 var portalRouter = require('./routes/portal');
 
 mongoose.connect('mongodb://localhost:27017/cmnd-development');
@@ -43,11 +43,9 @@ app.use(express.static(__dirname + '/public'));
 
 var port = process.env.PORT || 3000;
 
-// Routes
 app.use('/', portalRouter);
 app.use('/api', apiRouter);
 
-// Start the server
 app.listen(port);
 
 console.log('Running on port ' + port);
