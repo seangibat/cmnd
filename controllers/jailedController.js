@@ -6,6 +6,15 @@ var request = require('request');
 var storage = require('node-persist');
 var ejs = require('ejs');
 
+var api = {
+  log        : console.log,
+  setStorage : pluginStorage(command.plugin).set,
+  getStorage : pluginStorage(command.plugin).get,
+  request    : request,
+  res        : function(resp){
+    res.json(resp);
+  }
+}
 
 var pluginStorage = function(app) {
   return {
@@ -42,16 +51,6 @@ exports.postCommands = function(req,res){
   };
 
   var runPlugin = function(command){
-    var api = {
-      log        : console.log,
-      setStorage : pluginStorage(command.plugin).set,
-      getStorage : pluginStorage(command.plugin).get,
-      request    : request,
-      res        : function(resp){
-        res.json(resp);
-      }
-    }
-
     var path = "/plugins/" + command.plugin + ".js";
 
     var plugin = new jailed.Plugin(path, api);
