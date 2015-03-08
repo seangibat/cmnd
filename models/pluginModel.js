@@ -17,6 +17,18 @@ var PluginSchema = new mongoose.Schema({
   user_id: {
     type: String,
     required: true
+  },
+  source: {
+    type: String,
+    required: true
+  },
+  configHtml: {
+    type: String,
+    required: true
+  },
+  secrets: {
+    type: String,
+    required: true
   }
 });
 

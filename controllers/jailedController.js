@@ -6,23 +6,26 @@ var request = require('request');
 var storage = require('node-persist');
 var ejs = require('ejs');
 
-var api = {
-  log        : console.log,
-  setStorage : pluginStorage(command.plugin).set,
-  getStorage : pluginStorage(command.plugin).get,
-  request    : request,
-  res        : function(resp){
-    res.json(resp);
+var generateApi = function(plugin, res, userId) {
+  var api = {
+    log        : console.log,
+    setStorage : pluginStorage(plugin+userId).set,
+    getStorage : pluginStorage(plugin+userId).get,
+    request    : request,
+    res        : function(resp){
+      res.json(resp);
+    }
   }
+  return api;
 }
 
-var pluginStorage = function(app) {
+var pluginStorage = function(uid) {
   return {
     get: function(cb){
-      if (typeof cb === "function") cb(storage.getItem(app));
+      if (typeof cb === "function") cb(storage.getItem(uid));
     },
     set: function(data){
-      storage.setItem(app, data);
+      storage.setItem(uid, data);
     }
   }
 }
@@ -35,11 +38,11 @@ var contains = function(plugins, plugin){
 
 exports.postCommands = function(req,res){
 
-  var fuzzyMatch = function(){
-    var set = FuzzySet(req.user.applications);
-    contains = set.get(req.body.command_word);
-    if (!contains) return null;
-    return contains[0][1];
+  var fuzzyMatch = function(plugins, command){
+    var set = FuzzySet(plugins);
+    var foundMatch = set.get(command);
+    if (!foundMatch) return null;
+    return foundMatch[0][1];
   };
 
   var makeCommand = function(cb){
@@ -50,114 +53,73 @@ exports.postCommands = function(req,res){
     command.save(cb);
   };
 
-  var runPlugin = function(command){
-    var path = "/plugins/" + command.plugin + ".js";
+  var runPlugin = function(command, plugin){
+    var api = generateApi(command.plugin, res, req.user._id);
+    var jailedPlugin = new jailed.DynamicPlugin(plugin.source, api);
 
-    var plugin = new jailed.Plugin(path, api);
-
-    plugin.whenDisconnected(function(){
+    jailedPlugin.whenDisconnected(function(){
       if (!res.finished) res.json({ message: "Plugin crashed."})
     });
 
-    plugin.whenConnected(function() {
-      plugin.remote.command(command.toObject());
+    jailedPlugin.whenConnected(function() {
+      jailedPlugin.remote.command({ 
+        command: command.toObject(),
+        secrets: JSON.parse(plugin.secrets)
+      });
 
       setTimeout(function(){
-        plugin.disconnect();
+        jailedPlugin.disconnect();
         if (!res.finished) res.end({ message: "The plugin did not respond."});
       }, 2000);
     }); 
   }
 
-  if (!contains(req.user.applications, req.body.command_word)) req.body.command_word = fuzzyMatch(); 
-  if (!req.body.command_word) return res.json({ message: "User has no such application. "});
+  if (!contains(req.user.applications, req.body.command_word)){
+    req.body.command_word = fuzzyMatch(req.user.applications, req.body.command_word); 
+  }
 
-  makeCommand(function(cmd){
-    runPlugin(cmd);
+  if (!req.body.command_word) {
+    return res.json({ message: "User has no such application. "});
+  }
+
+  makeCommand(function(command){
+    Plugin.findOne({ command_word: command.plugin }, function(err, plugin){
+      runPlugin(command, plugin);
+    });
   });
 };
 
 exports.config = function(req,res){
-
-  Plugin.findOne({ command_word: req.params.command_word }, function(err, app){
+  Plugin.findOne({ command_word: req.params.command_word }, function(err, plugin){
     if (err) return res.send(err);
     if (!app) return res.json("Plugin not found");
-
-    var api = {
-      log        : console.log,
-      setStorage : pluginStorage(command.plugin).set,
-      getStorage : pluginStorage(command.plugin).get,
-      request    : request,
-      render     : ejs.render,
-      res        : function(resp){
-        res.send(resp);
-      }
-    };
-
-    fs.readFile("/plugins/" + plugin.command_word + ".ejs", function(err, template){
-      if (err) return res.send("Plugin config not found.");
-
-      var data = {
-        redirectPath: "https://cmnd.center/api/" + plugin.command_word + "/redirect"
-      }
-
-      var path = "/plugins/" + command.plugin + ".js";
-      var plugin = new jailed.Plugin(path, api);
-      var data = {
-        template: template,
-        user: {
-          _id: req.user._id
-        }
-      };
-
-      plugin.whenDisconnected(function(){
-        if (!res.finished) res.send({ message: "Plugin crashed."})
-      });
-
-      plugin.whenConnected(function() {
-        plugin.remote.config(data);
-
-        setTimeout(function(){
-          plugin.disconnect();
-          if (!res.finished) res.end("The plugin did not respond.");
-        }, 2000);
-      }); 
-    });
+    var data = storage.getItem(plugin.command_word + req.user._id);
+    data.redirectUrl = "/plugins/" + plugin.command_word + "/redirect";
+    data.secrets = JSON.parse(plugin.secrets);
+    var html = ejs.render(plugin.configHtml, data);
+    res.send(html);
   });
 };
 
 exports.getRedirect = function(req,res){
-  Plugin.findOne({ command_word: req.params.command_word }, function(err, app){
+  Plugin.findOne({ command_word: req.params.command_word }, function(err, plugin){
     if (err) return res.send(err);
     if (!app) return res.json("Plugin not found");
 
-    var api = {
-      log        : console.log,
-      setStorage : pluginStorage(command.plugin).set,
-      getStorage : pluginStorage(command.plugin).get,
-      request    : request,
-      res        : function(resp){
-        res.send(resp);
-      }
-    };
-    var path = "/plugins/" + command.plugin + ".js";
-    var plugin = new jailed.Plugin(path, api);
-    var data = {
-      params: req.params,
-      user: {
-        _id: req.user._id
-      }
-    };
+    var api = generateApi(plugin.command_word, res, req.user._id);
+    var jailedPlugin = new jailed.DynamicPlugin(plugin.source, api);
 
-    plugin.whenDisconnected(function(){
+    jailedPlugin.whenDisconnected(function(){
       if (!res.finished) res.json({ message: "Plugin crashed."})
     });
 
-    plugin.whenConnected(function() {
-      plugin.remote.getRedirect(data);
-
+    jailedPlugin.whenConnected(function() {
+      jailedPlugin.remote.getRedirect({
+        params: req.params,
+        secrets: JSON.parse(plugin.secrets)
+      });
       setTimeout(function(){
-        plugin.disconnect();
+        jailedPlugin.disconnect();
         if (!res.finished) res.end("The plugin did not respond.");
       }, 2000);
     }); 
@@ -165,39 +127,25 @@ exports.getRedirect = function(req,res){
 };
 
 exports.postRedirect = function(req,res){
-
-  Plugin.findOne({ command_word: req.params.command_word }, function(err, app){
+  Plugin.findOne({ command_word: req.params.command_word }, function(err, plugin){
     if (err) return res.send(err);
-    if (!app) return res.json("Application not found");
+    if (!app) return res.json("Plugin not found");
 
-    var api = {
-      log        : console.log,
-      setStorage : pluginStorage(command.plugin).set,
-      getStorage : pluginStorage(command.plugin).get,
-      request    : request,
-      res        : function(resp){
-        res.send(resp);
-      }
-    };
-    var path = "/plugins/" + command.plugin + ".js";
-    var plugin = new jailed.Plugin(path, api);
-    var data = {
-      body: req.body,
-      user: {
-        _id: req.user._id
-      }
-    };
+    var api = generateApi(plugin.command_word, res, req.user._id);
+    var jailedPlugin = new jailed.DynamicPlugin(plugin.source, api);
 
-    plugin.whenDisconnected(function(){
-      if (!res.finished) res.json({ message: "Plugin crashed."})
+    jailedPlugin.whenDisconnected(function(){
+      if (!res.finished) res.send("Plugin crashed.")
     });
 
-    plugin.whenConnected(function() {
-      plugin.remote.postRedirect(data);
-
+    jailedPlugin.whenConnected(function() {
+      jailedPlugin.remote.postRedirect({
+        body: req.body,
+        secrets: JSON.parse(plugin.secrets)
+      });
       setTimeout(function(){
-        plugin.disconnect();
-        if (!res.finished) res.end("The plugin did not respond.");
+        jailedPlugin.disconnect();
+        if (!res.finished) res.send("The plugin did not respond.");
       }, 2000);
     }); 
   });
