@@ -16,26 +16,15 @@ domain = "https://cmnd.center"
 def setup():
   config_file = open(home + '/.cmnd', 'w')
   username = raw_input("We need to authenticate first. What is your username?\n")
-  password = raw_input("And your password? (this is only exchanged for a token, not stored)\n")
+  password = raw_input("And your password?\n")
 
   request = urllib2.Request(domain + "/api/oauth2/native/54a1fbe9a09c17c47e1e8ec5")
   base64string = base64.encodestring('%s:%s' % (username, password)).replace('\n', '')
-  request.add_header("Authorization", "Basic %s" % base64string)   
+  config_file.write(base64string)
+  config_file.close()
+  print "Authentication hash saved. You may now issue commands."
 
-  try:
-    response = urllib2.urlopen(request)
-  except urllib2.URLError, e:
-    if e.code == 401:
-        print "That username and password did not work."
-    else:
-        print "There was a problem of type: " + str(e.code)
-  else:
-    text = json.loads(response.read())
-    config_file.write(text['value'])
-    response.close()
-    print "Successfully authenticated. You may now issue commands."
-
-def command(access_token):
+def command(base64string):
   command = {}
   start = 1
   print_json = False
@@ -45,7 +34,7 @@ def command(access_token):
   command['command_word'] = sys.argv[start];
   command['message'] = (' ').join(sys.argv[start+1:])
   req = urllib2.Request(domain + "/api/commands")
-  req.add_header('Authorization', 'Bearer ' + access_token)
+  req.add_header('Authorization', 'Basic ' + basicAuthString)
   req.add_data(urllib.urlencode(command))
 
   try:
@@ -70,9 +59,6 @@ if not config_exists or len(sys.argv) == 1 or sys.argv[1] == "setup":
   setup()
 elif config_exists:
   config_file = open(home + '/.cmnd', 'r')
-  access_token = config_file.read()
+  base64string = config_file.read()
   config_file.close()
-  if len(access_token) != 256:
-    setup()
-  else:
-    command(access_token)
+  command(base64string)
