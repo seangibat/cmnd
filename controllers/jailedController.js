@@ -36,6 +36,22 @@ var contains = function(plugins, plugin){
   });
 };
 
+var makePlugin = function(source, api, cb){
+  var jailedPlugin = new jailed.DynamicPlugin(source, api);
+
+  jailedPlugin.whenDisconnected(function(){
+    if (!res.finished) res.send("Plugin crashed.")
+  });
+
+  jailedPlugin.whenConnected(function() {
+    setTimeout(function(){
+      jailedPlugin.disconnect();
+      if (!res.finished) res.send("The plugin did not respond.");
+    }, 2000);
+    cb(jailedPlugin);
+  }); 
+}
+
 exports.postCommands = function(req,res){
 
   var fuzzyMatch = function(plugins, command){
@@ -53,27 +69,6 @@ exports.postCommands = function(req,res){
     command.save(cb);
   };
 
-  var runPlugin = function(command, plugin){
-    var api = generateApi(command.plugin, res, req.user._id);
-    var jailedPlugin = new jailed.DynamicPlugin(plugin.source, api);
-
-    jailedPlugin.whenDisconnected(function(){
-      if (!res.finished) res.json({ message: "Plugin crashed."})
-    });
-
-    jailedPlugin.whenConnected(function() {
-      jailedPlugin.remote.command({ 
-        command: command.toObject(),
-        secrets: JSON.parse(plugin.secrets)
-      });
-
-      setTimeout(function(){
-        jailedPlugin.disconnect();
-        if (!res.finished) res.end({ message: "The plugin did not respond."});
-      }, 2000);
-    }); 
-  }
-
   if (!contains(req.user.applications, req.body.command_word)){
     req.body.command_word = fuzzyMatch(req.user.applications, req.body.command_word); 
   }
@@ -84,7 +79,16 @@ exports.postCommands = function(req,res){
 
   makeCommand(function(command){
     Plugin.findOne({ command_word: command.plugin }, function(err, plugin){
-      runPlugin(command, plugin);
+
+      var api = generateApi(command.plugin, res, req.user._id);
+
+      runPlugin(plugin.source, api, function(jailedPlugin){
+        jailedPlugin.remote.command({ 
+          command: command.toObject(),
+          secrets: JSON.parse(plugin.secrets)
+        });
+      });
+
     });
   });
 };
@@ -107,22 +111,14 @@ exports.getRedirect = function(req,res){
     if (!app) return res.json("Plugin not found");
 
     var api = generateApi(plugin.command_word, res, req.user._id);
-    var jailedPlugin = new jailed.DynamicPlugin(plugin.source, api);
 
-    jailedPlugin.whenDisconnected(function(){
-      if (!res.finished) res.json({ message: "Plugin crashed."})
-    });
-
-    jailedPlugin.whenConnected(function() {
+    runPlugin(plugin.source, api, function(jailedPlugin){
       jailedPlugin.remote.getRedirect({
         params: req.params,
         secrets: JSON.parse(plugin.secrets)
       });
-      setTimeout(function(){
-        jailedPlugin.disconnect();
-        if (!res.finished) res.end("The plugin did not respond.");
-      }, 2000);
-    }); 
+    });
+
   });
 };
 
@@ -132,21 +128,13 @@ exports.postRedirect = function(req,res){
     if (!app) return res.json("Plugin not found");
 
     var api = generateApi(plugin.command_word, res, req.user._id);
-    var jailedPlugin = new jailed.DynamicPlugin(plugin.source, api);
 
-    jailedPlugin.whenDisconnected(function(){
-      if (!res.finished) res.send("Plugin crashed.")
-    });
-
-    jailedPlugin.whenConnected(function() {
+    runPlugin(plugin.source, api, function(jailedPlugin){
       jailedPlugin.remote.postRedirect({
         body: req.body,
         secrets: JSON.parse(plugin.secrets)
       });
-      setTimeout(function(){
-        jailedPlugin.disconnect();
-        if (!res.finished) res.send("The plugin did not respond.");
-      }, 2000);
-    }); 
+    });
+
   });
 };
