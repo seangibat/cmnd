@@ -22,7 +22,7 @@ var PluginSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  configHtml: {
+  config_html: {
     type: String,
     required: true
   },

@@ -29,9 +29,8 @@ exports.putPlugins = function(req,res){
    plugin.title = req.body.title;
    plugin.description = req.body.description;
    plugin.command_word = req.body.command_word;
-   plugin.user_id = req.user._id;
    plugin.source = req.body.source;
-   plugin.configHtml = req.body.config_html;
+   plugin.config_html = req.body.config_html;
    plugin.secrets = req.body.secrets;
 
    plugin.save(function(err){

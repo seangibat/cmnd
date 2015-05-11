@@ -4,8 +4,8 @@ app.factory('API', function ($resource) {
   var userPlugins = $resource('/user/plugins', {id:'@id'}, {update: {method: 'PATCH'}});
   
   return {
-    commands    : commands,
-    plugins     : plugins,
-    userPlugins : userPlugins
+    command    : command,
+    plugin     : plugin,
+    userPlugin : userPlugin
   };
 });

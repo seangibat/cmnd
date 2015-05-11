@@ -29,14 +29,10 @@ UserSchema.pre('save', function(callback) {
 
   if (!user.isModified('password')) return callback();
 
-  bcrypt.genSalt(5, function(err, salt) {
+  bcrypt.hash(user.password, null, null, function(err, hash) {
     if (err) return callback(err);
-
-    bcrypt.hash(user.password, salt, null, function(err, hash) {
-      if (err) return callback(err);
-      user.password = hash;
-      callback();
-    });
+    user.password = hash;
+    callback();
   });
 });
 

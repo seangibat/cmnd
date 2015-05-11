@@ -7,16 +7,13 @@ var storage = require('node-persist');
 var ejs = require('ejs');
 
 var generateApi = function(plugin, res, userId) {
-  var api = {
+  return {
     log        : console.log,
     setStorage : pluginStorage(plugin+userId).set,
     getStorage : pluginStorage(plugin+userId).get,
     request    : request,
-    res        : function(resp){
-      res.json(resp);
-    }
-  }
-  return api;
+    res        : function(resp){ res.json(resp); }
+  };
 }
 
 var pluginStorage = function(uid) {
@@ -27,7 +24,7 @@ var pluginStorage = function(uid) {
     set: function(data){
       storage.setItem(uid, data);
     }
-  }
+  };
 }
 
 var contains = function(plugins, plugin){

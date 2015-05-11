@@ -12,7 +12,7 @@ exports.postUsers = function(req, res) {
   user.save(function(err) {
     if (err) res.send(err);
 
-    res.end('/dashboard');
+    res.redirect('/dashboard');
   });
 };
 
