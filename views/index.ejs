@@ -11,7 +11,11 @@
 
 <div class="login-container">
   <div class="input-container">
-    <input name="username" type="text"><input name="password" type="password"><input value="login" type="submit">
+    <form action="/login" method="POST">
+      <input name="username" type="text">
+      <input name="password" type="password">
+      <input value="login" type="submit">
+    </form>
   </div>
 </div>
 
@@ -38,10 +42,10 @@
       </ul>
     </li>
     <li class="section">
-      dashboard
+      <a href="/dashboard">dashboard</a>
       <ul>
         <li class="article">
-          <a href="http://www.google.com/somet/wttwt">your history</a>
+          <a href="/dashboard/#/commands">your history</a>
         </li>
         <li class="article">
           <a href="">your plugins</a>

@@ -25,7 +25,7 @@ passport.use(new LocalStrategy(
       user.verifyPassword(password, function(err, isMatch) {
         if (err) return callback(err);
         if (!isMatch) { return callback(null, false); }
-        return callback(null, user);
+      return callback(null, user);
       });
     });
   }
