@@ -4,19 +4,22 @@ var userController = require('../controllers/userController');
 var passport = require('passport');
 var router = require('express').Router();
 
+router.route('/')
+  .get(portalController.index);
+
 router.route('/api/user')
   .post(userController.postUsers);
 
+router.use(authController.isAuthenticated);
+
 router.route('/login')
-  .post(passport.authenticate('local', { session: true, successRedirect: "/dashboard", failureRedirect: "/" }));
+  .post(portalController.login);
 
 router.route('/logout')
-  .get(authController.isAuthenticated, portalController.logout);
+  .get(portalController.logout);
 
 router.route('/dashboard')
-  .get(authController.isAuthenticated, portalController.dashboard);
+  .get(portalController.dashboard);
 
-router.route('/')
-  .get(portalController.index);
 
 module.exports = router;

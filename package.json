@@ -9,6 +9,7 @@
   "author": "Sean Gibat",
   "license": "ISC",
   "dependencies": {
+    "basic-auth": "^1.0.1",
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.10.0",
     "ejs": "^1.0.0",

@@ -3,7 +3,6 @@ var SESSION_KEY = process.env.SESSION_KEY || "development";
 var express    = require('express');
 var mongoose   = require('mongoose');
 var bodyParser = require('body-parser');
-var passport   = require('passport');
 var session    = require('express-session');
 var User       = require('./models/userModel');
 var ejs        = require('ejs');
@@ -21,23 +20,11 @@ app.use(bodyParser.urlencoded({
 
 app.set('view engine', 'ejs');
 
-app.use(passport.initialize());
-
 app.use(session({
   secret: SESSION_KEY,
   saveUninitalized: true,
   resave: true
 }));
-
-passport.serializeUser(function(user, done) {
-  done(null, user.id);
-});
-
-passport.deserializeUser(function(id, done) {
-  User.findById(id, function(err, user) {
-    done(err, user);
-  });
-});
 
 app.use(express.static(__dirname + '/public'));
 
@@ -45,6 +32,28 @@ var port = process.env.PORT || 3000;
 
 app.use('/', portalRouter);
 app.use('/api', apiRouter);
+
+app.use(logErrors);
+app.use(clientErrorHandler);
+app.use(errorHandler);
+
+function logErrors(err, req, res, next) {
+  console.error(err.stack);
+  next(err);
+}
+
+function clientErrorHandler(err, req, res, next) {
+  if (req.xhr) {
+    res.status(500).send({ error: 'Something blew up!' });
+  } else {
+    next(err);
+  }
+}
+
+function errorHandler(err, req, res, next) {
+  res.status(500);
+  res.end({ error: err });
+}
 
 app.listen(port);
 

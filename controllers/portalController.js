@@ -12,7 +12,7 @@ exports.dashboard = function(req,res){
 
 exports.logout = function(req,res){
   console.log("Logout");
-  req.logout();
+  req.session.destroy();
   res.redirect('/');
 };
 

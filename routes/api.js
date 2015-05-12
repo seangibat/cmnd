@@ -6,7 +6,7 @@ var jailedController = require('../controllers/jailedController');
 
 var router = require('express').Router();
 
-router.use(authController.isClientAuthenticated);
+router.use(authController.isAuthenticated);
 
 router.route('/commands')
   .post(jailedController.postCommands)
