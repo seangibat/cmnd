@@ -1,19 +1,34 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="cmndApp">
   <head>
+
     <meta charset="UTF-8">
-    <title>cmnd.center dashboard/title>
+    <title>cmnd.center dashboard</title>
+
     <link href='//fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.11/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular-route.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular-resource.js"></script>
+    <script src="/js/app.js"></script>
+    <script src="/js/services/API.js"></script>
+    <script src="/js/controllers/all_plugins_ctrl.js"></script>
+    <script src="/js/controllers/api_ctrl.js"></script>
+    <script src="/js/controllers/clients_ctrl.js"></script>
+    <script src="/js/controllers/commands_ctrl.js"></script>
+    <script src="/js/controllers/create_plugin_ctrl.js"></script>
+    <script src="/js/controllers/my_plugins_ctrl.js"></script>
+
     <style>
       body {
         font-family: "Inconsolata";
       }
     </style>
+
   </head>
   <body>
-    <h1 class="text-center">dashboard</h1>
 
+    <h1 class="text-center">dashboard</h1>
     <div class="view" ng-view></div ng-view>
 
   </body>

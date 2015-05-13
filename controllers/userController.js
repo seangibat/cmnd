@@ -2,7 +2,7 @@
 var User = require('../models/userModel');
 var Plugin = require('../models/pluginModel');
 
-// Create endpoint /api/users for POST
+// POST /api/users
 exports.postUsers = function(req, res) {
   var user = new User({
     username: req.body.username,
@@ -10,13 +10,12 @@ exports.postUsers = function(req, res) {
   });
 
   user.save(function(err) {
-    if (err) res.send(err);
-
+    if (err) return res.send(err);
     res.redirect('/dashboard');
   });
 };
 
-// Create endpoint /api/users for GET
+// GET /api/users
 exports.getUsers = function(req, res) {
   User.find(function(err, users) {
     if (err) res.send(err);

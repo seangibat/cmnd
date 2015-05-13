@@ -7,7 +7,7 @@ exports.index = function(req,res){
 
 exports.dashboard = function(req,res){
   console.log("Dashboard..");
-  res.end("dashboard");
+  res.render("dashboard");
 };
 
 exports.logout = function(req,res){

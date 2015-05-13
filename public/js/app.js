@@ -1,5 +1,5 @@
-var app = angular
-  .module('cmndApp', ['ngResource', 'ngRoute']);
+window.app = angular
+  .module('cmndApp', ['ngResource', 'ngRoute'])
   .config(['$routeProvider', function($routeProvider) {
     $routeProvider.
       when('/commands', {
