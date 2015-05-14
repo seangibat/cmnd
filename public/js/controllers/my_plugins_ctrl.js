@@ -1,6 +1,6 @@
 app.controller('MyPluginsCtrl', ['$scope', 'API', function($scope, API){
   
-  API.userPlugins().query(function(data){
+  API.userPlugin().query(function(data){
     $scope.plugins = data;
   });
 

@@ -7,15 +7,15 @@ window.app = angular
         controller: 'CommandsCtrl'
       }).
       when('/myplugins', {
-        templateUrl: '/js/templates/myplugins.html',
+        templateUrl: '/js/templates/my_plugins.html',
         controller: 'MyPluginsCtrl'
       }).
       when('/allplugins', {
-        templateUrl: '/js/templates/allplugins.html',
+        templateUrl: '/js/templates/all_plugins.html',
         controller: 'AllPluginsCtrl'
       }).
       when('/createplugin', {
-        templateUrl: '/js/templates/createplugin.html',
+        templateUrl: '/js/templates/create_plugin.html',
         controller: 'CreatePluginCtrl'
       }).
       when('/api', {
