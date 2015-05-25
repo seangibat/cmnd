@@ -15,12 +15,14 @@ exports.postPlugins = function(req,res){
   plugin.command_word = req.body.command_word;
   plugin.user_id = req.user._id;
   plugin.source = req.body.source;
-  plugin.configHtml = req.body.config_html;
+  plugin.config_html = req.body.config_html;
   plugin.secrets = req.body.secrets;
+
+  console.log(plugin);
 
   plugin.save(function(err){
     if (err) res.send(err);
-    res.send("Plugin added.");
+    res.end("Plugin added.");
   });
 };
 

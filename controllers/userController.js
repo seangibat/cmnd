@@ -26,7 +26,7 @@ exports.getUsers = function(req, res) {
 exports.postUsersPlugins = function(req, res) {
   Plugin.findOne({ command_word: req.body.command_word }, function(err, plugin){
     if (err) return res.send(err);
-    if (!app) return res.send({ message: "Plugin not found." });
+    if (!plugin) return res.send({ message: "Plugin not found." });
     req.user.plugins.push(plugin.command_word);
     req.user.save(function(err){
       if (err) res.json({ message: 'Error adding plugin. '});

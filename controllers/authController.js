@@ -17,8 +17,6 @@ var authFlow = function(req, res, next){
   var credentials = auth(req);
   var session = req.session;
 
-  console.log("cred", credentials);
-
   // If they've already logged in.
   if (session.user) {
     req.user = session.user;
@@ -48,4 +46,13 @@ var authFlow = function(req, res, next){
   }
 };
 
-exports.isAuthenticated = authFlow;
+var getUser = function(req, res, next){
+  console.log("get user");
+  User.findOne({ _id : req.user._id}, function(err, user){
+
+    req.session.user = user;
+    next();
+  });
+};
+
+exports.isAuthenticated = [authFlow, getUser];

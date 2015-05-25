@@ -12,9 +12,10 @@ var generateApi = function(plugin, res, userId) {
     setStorage : pluginStorage(plugin+userId).set,
     getStorage : pluginStorage(plugin+userId).get,
     request    : request,
-    res        : function(resp){ res.json(resp); }
+    json       : function(resp){ res.json(resp); },
+    send       : function(resp){ res.send(resp); }
   };
-}
+};
 
 var pluginStorage = function(uid) {
   return {
@@ -25,7 +26,7 @@ var pluginStorage = function(uid) {
       storage.setItem(uid, data);
     }
   };
-}
+};
 
 var contains = function(plugins, plugin){
   return plugins.some(function(item){ 
@@ -47,9 +48,10 @@ var makePlugin = function(source, api, cb){
     }, 2000);
     cb(jailedPlugin);
   }); 
-}
+};
 
-exports.postCommands = function(req,res){
+exports.postCommands = function(req, res, next){
+  if (!req.body.command_word) return res.send("No command");
 
   var fuzzyMatch = function(plugins, command){
     var set = FuzzySet(plugins);
@@ -66,23 +68,29 @@ exports.postCommands = function(req,res){
     command.save(cb);
   };
 
-  if (!contains(req.user.applications, req.body.command_word)){
-    req.body.command_word = fuzzyMatch(req.user.applications, req.body.command_word); 
+  if (!contains(req.user.plugins, req.body.command_word)){
+    req.body.command_word = fuzzyMatch(req.user.plugins, req.body.command_word); 
   }
 
   if (!req.body.command_word) {
     return res.json({ message: "User has no such application. "});
   }
 
-  makeCommand(function(command){
+  makeCommand(function(err, command){
     Plugin.findOne({ command_word: command.plugin }, function(err, plugin){
+
+      console.log(plugin);  
 
       var api = generateApi(command.plugin, res, req.user._id);
 
-      runPlugin(plugin.source, api, function(jailedPlugin){
+      makePlugin(plugin.source, api, function(jailedPlugin){
+
+        console.log("remote", jailedPlugin.remote);
+
+
         jailedPlugin.remote.command({ 
           command: command.toObject(),
-          secrets: JSON.parse(plugin.secrets)
+          secrets: {hey:2}
         });
       });
 
@@ -109,7 +117,7 @@ exports.getRedirect = function(req,res){
 
     var api = generateApi(plugin.command_word, res, req.user._id);
 
-    runPlugin(plugin.source, api, function(jailedPlugin){
+    makePlugin(plugin.source, api, function(jailedPlugin){
       jailedPlugin.remote.getRedirect({
         params: req.params,
         secrets: JSON.parse(plugin.secrets)
@@ -126,7 +134,7 @@ exports.postRedirect = function(req,res){
 
     var api = generateApi(plugin.command_word, res, req.user._id);
 
-    runPlugin(plugin.source, api, function(jailedPlugin){
+    makePlugin(plugin.source, api, function(jailedPlugin){
       jailedPlugin.remote.postRedirect({
         body: req.body,
         secrets: JSON.parse(plugin.secrets)
