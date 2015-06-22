@@ -1,55 +1,79 @@
 <form>
 
-  <input type="text" model="plugin.title" placeholder="plugin title"><br>
-  <input type="text" model="plugin.command_word" placeholder="command word">
 
-  <p>
-    description<br>
-    <textarea model="plugin.description">description</textarea>
-  </p>
-  
-  <p>
-    source<br>
-    <textarea model="plugin.source">
-    var setStorage = application.remote.setStorage; // setStorage("key", value);
-    var getStorage = application.remote.getStorage; // getStorage("key");
-    var request    = application.remote.request; // npm module request
-    var send       = application.remote.send; // res(someObject) sends the whatever response
-    var res        = application.remote.res; // res(someObject) sends the json response
-    var log        = application.remote.log; // log("stuff I want to log");
+  <div class="form-group">
+    <label for="title">Title</label>
+    <input type="text" name="title" model="plugin.title" placeholder="plugin title" class="form-control"><br>
+  </div>
 
-    var command = function(command, secrets){
-      
-    };
+  <div class="form-group">
+    <label for="word">Command Word</label>
+    <input type="text" name="word" model="plugin.command_word" placeholder="command word" class="form-control">
+  </div>
 
-    var getRedirect = function(params, secrets){
+  <div class="form-group">
+    <label for="description">Description</label>
+    <textarea name="description" model="plugin.description" class="form-control"></textarea>
+  </div>
 
-    };
+  <div class="form-group">
+    <label for="source">Source</label>
+    <textarea name="source" model="plugin.source" class="form-control" style="height: 40em;">
+var setStorage = application.remote.setStorage; // setStorage("key", value);
+var getStorage = application.remote.getStorage; // getStorage("key");
+var request    = application.remote.request; // npm module request
+var send       = application.remote.send; // res(someObject) sends the whatever response
+var res        = application.remote.res; // res(someObject) sends the json response
+var log        = application.remote.log; // log("stuff I want to log");
 
-    var postRedirect = function(body, secrets){
+/** 
+* This function handles the execution of a command. The meat and potatoes.
+* "command" will be an object containg something like:
+* { plugin: "YOUR_COMMAND_WORD", 
+*   message: "Whatever the user entered after your commmand word." 
+*   secrets: "the parsing of your secrets section" }
+*/
+var command = function(command, secrets){
 
-    };
+};
 
-    var api = {
-        command      : command,
-        getRedirect  : getRedirect,
-        postRedirect : postRedirect
-    };
+/** 
+* For handling get requests to your provided pathway.
+* "command" will be an object containg something like:
+* { plugin: "YOUR_COMMAND_WORD", 
+*   message: "Whatever the user entered after your commmand word." 
+*   secrets: "the parsing of your secrets section" }
+*/
+var getRedirect = function(params, secrets){
 
-    application.setInterface(api);
+};
+
+var postRedirect = function(body, secrets){
+
+};
+
+var api = {
+  command      : command,
+  getRedirect  : getRedirect,
+  postRedirect : postRedirect
+};
+
+application.setInterface(api);
     </textarea>
-  </p>
+  </div>
 
-  <p>
-    config html<br>
-    <textarea model="plugin.config_html">config html</textarea>
-  </p>
+  <div class="form-group">
+    <label for="config">Config HTML</label>
+    <textarea name="congfig" model="plugin.config_html" class="form-control" style="height: 30em;">      
+    </textarea>
+  </div>
 
-  <p>
-    secrets<br>
-    <textarea model="plugin.secrets">secrets</textarea>
-  </p>
+  <div class="form-group">
+    <label for="secrets">Secrets (this should be JSON)</label>
+    <textarea name="secrets" model="plugin.secrets" class="form-control" style="height: 10em;">
+    </textarea>
+  </div>
 
-  <input type="submit">
+  <input type="submit" class="btn btn-default" value="Create Plugin">
 
 </form>
