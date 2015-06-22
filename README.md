@@ -7,7 +7,7 @@ What is the point?
 * Authenticating with OAuth APIs is much easier in a browser environment.
 * Long-term vision of more complex plugins that can accept text from any text source (including speech) and respond with the relevant format.
 
-There is an initial, badly written MVP up at http://cmnd.center. I'm currently rebuilding and refactoring.
+Normally the site is available at http://cmnd.center, but I'm currently rebuilding and refactoring.
 
 ##Plugins
 Plugins are a javascript file exposing four functions via an application.remote.api object.
